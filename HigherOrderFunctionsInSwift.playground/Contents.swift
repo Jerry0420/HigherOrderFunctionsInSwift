@@ -4,6 +4,8 @@ import UIKit
 
 //Higher-order functions is Functions that can accept other functions as parameters.
 
+//Higher-order functions is Functions that can accept other functions as parameters.
+
 //map
 //放入要組成的array的element（回傳的型別不用與原本element的型別同）
 //Loops over a collection and applies the same operation to each element in the collection.
@@ -23,7 +25,6 @@ let twoTimesArray3 = numberArray.map { (number) -> String in
 }
 print(twoTimesArray3)
 
-
 //filter
 //回傳符合條件的結果, 條件為bool(原先array的型別不能改變)
 //放入判斷式
@@ -41,11 +42,11 @@ print(greaterThanSevenArray2)
 
 
 //reduce
-//將array降一個維度，initial value放入初始值，第一個變數為initial value，第二個變數為array內的element （回傳的型別要與原本element的型別同）
+//將array降一個維度，initial value放入初始值，第一個變數為initial value，第二個變數為array內的element （回傳的型別與初始值型別相同，與element的型別無關）
 //Combines all items in a collection to create a single value.
 
-let sum1 = numberArray.reduce(0) { (initial, number) -> Int in
-    return initial + number
+let sum1 = numberArray.reduce("666") { (initial, number) -> String in
+    return initial + "\(number)"
 }
 print(sum1)
 
@@ -61,48 +62,59 @@ let result = textArray.reduce("qqq") { (first, char) -> String in
 }
 print(result)
 
-let twoDimArray = [[1,2,3],[4,5,6]]
-let oneDimArray = twoDimArray.reduce([]) { $0 + $1}
-print(oneDimArray)
+let twoDimIntArray = [[1,2,3],[4,5,6]]
+let oneDimIntArray = twoDimIntArray.reduce([]) { $0 + $1}
+print(oneDimIntArray)
 
-//FlatMap
-//When implemented on sequences : Flattens a collection of collections.
-//沒nil版本
+//FlatMap -> 用於降array維度，回傳 element 有 optional/nil 的 array。
+//若要使用於一維array上，必定要使用compactMap
 //參數為array
-let twoArray = [[1,2,[3,7,8]],[4,5,6]]
-
-let flattedTwoArray = twoArray.flatMap{$0}
+let twoDimAnyArray = [[1,2,[3,7,8]],[4,5,6]]
+let flattedTwoArray = twoDimAnyArray.flatMap {$0}
 print(flattedTwoArray)
 
-let flatMappedNumber = numberArray.flatMap {$0}
-print(flatMappedNumber)
+let twoDimIntOptionalArray = [[1,2,3], [2,3,nil]]
+let flattenTwoDimArray = twoDimIntOptionalArray.flatMap { $0 }
+print(flattenTwoDimArray)
 
-let mappedNumber = numberArray.map { Array(repeating: $0, count: $0) }
-print(mappedNumber)
-
-
-//element或return有nil版本
+//compactMap -> 不會降維度，用於回傳 element 沒有 optional/nil 的 array
+//故若要使用於一維array上，必定要使用compactMap
 //Returns an array containing the non-nil results
-let arrayWithNil = ["a","b",nil , "c", nil]
-let realStringArray = arrayWithNil.flatMap{$0}
+let oneDimIntArrayWithNil = [1,2,nil , 3, nil]
+let realStringArray = oneDimIntArrayWithNil.compactMap {$0}
 print(realStringArray)
 
-let possibleNumbers = ["1", "2", "three", "///4///", "5"]
+//compactMap不會降維度
+let twoDimStringArrayWithNil = [["a"],["b"],nil]
+let nonNilArray = twoDimStringArrayWithNil.compactMap({$0})
+print(nonNilArray) //只會將nil的 element拿掉，仍為2維array
 
-let flatMappedPossibleNumbers: [Int] = possibleNumbers.flatMap { str in Int(str) }
+//numberArray = [1,2,3,4,5,6,7,8,9,10]
+let flatMappedNumber = numberArray.compactMap {$0}
+print(flatMappedNumber)
+
+let possibleNumbers = ["1", "2", "three", "///4///", "5"]
+let flatMappedPossibleNumbers: [Int] = possibleNumbers.compactMap { str in Int(str) }
 print(flatMappedPossibleNumbers)
 
 let mappedPossibleNumbers: [Int?] = possibleNumbers.map { str in Int(str) }
 print(mappedPossibleNumbers)
 
-let twoArrayWithNil = [["a"],["b"],nil]
-let nonNilArray = twoArrayWithNil.flatMap({$0})
-print(nonNilArray) //仍為2維array
+//flatMap V.S. compactMap 比較
+let twoDimStringArray1 = [["a"],["b"],[nil, 1]]
+let nonNilArray1 = twoDimStringArray1.flatMap({$0})
+print(nonNilArray1) //降維
+
+let twoDimStringArray2 = [["a"],["b"],[nil, 1]]
+let nonNilArray2 = twoDimStringArray2.compactMap({$0})
+print(nonNilArray2) //此[nil]，非為nil element，不會被拿掉
+
 
 //combo
-
-let nonNilArrayOneDim = twoArrayWithNil.flatMap({$0}).flatMap({$0}) //先把nil拿掉，再降維度
+//twoDimStringArrayWithNil = [["a"],["b"],nil]
+let nonNilArrayOneDim = twoDimStringArrayWithNil.compactMap({$0}).flatMap({$0}) //先把nil拿掉，再降維度
 print(nonNilArrayOneDim)
 
-let comboResult = twoArray.flatMap{$0}.map{"@@\($0)"}
+//twoArray = [[1,2,[3,7,8]],[4,5,6]]
+let comboResult = twoDimAnyArray.flatMap{$0}.map{"@@\($0)"}
 print(comboResult)
